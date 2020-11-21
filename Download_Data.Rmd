@@ -18,6 +18,8 @@ UIS.FEP.56.F900
 
 ## Download All Series
 
+First the WDI web site was searched for good data series.
+
 ```{r}
 outcome_indicators <-
   c(
@@ -93,6 +95,8 @@ outcome_indicators <-
 
 ```
 
+Next use `WDISearch` to get the meta data for each series.
+
 ```{r}
 series_description <- map(outcome_indicators,
                           function(.x) {
@@ -107,21 +111,27 @@ series_description <- map(outcome_indicators,
 series_description
 ```
 
+Here are the fields of meta data provide by WDI.
+
+
 ```{r}
 names(series_description[[1]])
 series_description[[1]][['name']]
 ```
 
-```{r}
-WDIsearch(string = paste0("^","HF.DYN.MORT","$"),
-           field = 'indicator', short = FALSE)
-```
+
 
 
 ```{r}
 series_description[1]$`5.51.01.03.mortal`
 series_description[3][[1]]
 ```
+
+Next a separate list of the names and indicators is 
+extracted for used in the gadget as selection options.
+These lists are saved to the project, but 
+the code could be converted to functions for use by
+the user if the package was developed further.
 
 ```{r}
 extract_info <- function(.element){
@@ -138,11 +148,6 @@ usethis::use_data(series_labels)
 usethis::use_data(series_values)
 ```
 
-```{r}
-#names(h)
-location <- which(series_values == series_values[3])
-series_labels[location]
-```
 
 
 ```{r}
@@ -150,12 +155,7 @@ h <- WDI::WDI(indicator = outcome_indicators)
 h %>% 
 head()
 ```
-```{r}
-d <- h %>% 
-  filter(year > 2000) %>% 
-  janitor::clean_names() %>% 
-  filter(!is.na(x5_51_01_03_mortal),!is.na(hf_dyn_mort)) 
-```
+
 
 
 
@@ -164,9 +164,22 @@ d <- h %>%
 ```{r}
 usethis::use_data(h,overwrite = TRUE)
 ```
+
+```{r}
+d <- h %>% 
+  filter(year > 2000) %>% 
+  janitor::clean_names() %>% 
+  filter(!is.na(x5_51_01_03_mortal),!is.na(hf_dyn_mort)) 
+```
+
 ```{r}
 usethis::use_data(d,overwrite = TRUE)
 ```
 
 
+```{r}
+#names(h)
+location <- which(series_values == series_values[3])
+series_labels[location]
+```
 

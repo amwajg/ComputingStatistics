@@ -1,26 +1,24 @@
 ---
-title: "Amwaj"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Amwaj}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
 )
 ```
 
-```{r setup}
-library(Almalki)
-library(dplyr)
-library(ggplot2)
-library(shiny)
-library(miniUI)
-```
+# Almalki
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of Almalki is to ...
 
 ## Installation
 
@@ -31,6 +29,11 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("amwajg/ComputingStatistics")
 ```
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+
 
 
 ## Idea primary aim
@@ -50,14 +53,10 @@ There is data set in the app called `h`. It would be possible for the user to pr
 The app produced a density curve of the selected series. This is useful for evaluating the distribution of the series values. 
 
 
-```{r, eval=FALSE}
+```{r example, eval=FALSE}
+library(Almalki)
+## basic example code
 h %>% gadget_plot()
 ```
 
-
-
-
-## Future Work 
-
-Health Services Research. The goal is to identify the health outcome measure such as mortality or life expectancy. Next, measures of government intervention in society have to be identified. The app  will let the user measure the association of these interventions and outcomes. One intervention could be education. These will be compared across countries to look for association. In addition, moderators or confounders such as age demographics will be used to adjust.  The user will be able to choose from data series that I will pre-select.  There well be options for graphs and statistical analysis.
 
