@@ -1,0 +1,91 @@
+---
+title: "ShinyGadget"
+author: "Amwaj Almalki"
+date: "18/11/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(shiny, miniUI, tidyverse)
+library(shiny)
+library(miniUI)
+library(ggplot2)
+```
+
+```{r,eval=TRUE}
+fields_list <- h %>% 
+  select(-iso2c) %>% 
+  pivot_longer(cols=where(is.double) | contains('.')) %>% 
+  filter(!is.na(value)) %>% 
+  count(name) %>% 
+  arrange(-n) %>% 
+  pull(name) %>% 
+  as.list()
+write_rds(fields_list, 'data-raw/fields_list.rds')
+fields_strings <- unlist(fields_list)[1:number_of_series]
+```
+
+
+
+
+
+
+```{r}
+gadget_plot <-  function(.h) {
+  ui <- miniPage(
+    gadgetTitleBar("Density Plot"),
+    miniTabstripPanel(
+      miniTabPanel(
+        "Parameters",
+        icon = icon("sliders"),
+        miniContentPanel(
+          selectInput(
+            "x",
+            "Select X-AXIS",
+            series_labels,
+            selected = series_labels[c(1)],
+            multiple = FALSE,
+            selectize = TRUE,
+            width = NULL,
+            size = NULL)
+          
+        )),
+      
+      miniTabPanel(
+        "Visualize",
+        icon = icon("area-chart"),
+        miniContentPanel(plotOutput("plot", height = "100%")
+                         ))
+      
+                     
+                     
+                     
+                   
+                 )
+  )
+                 
+  server <- function(input, output, session) {
+  output$plot <- renderPlot({
+    location <- which(series_labels == input$x)
+    x_value <- series_values[location]
+    .h %>% 
+      ggplot(aes(x = !!sym(x_value)))+
+      geom_density() +
+      labs(x = input$x)
+  })
+ }
+  
+
+  
+  runGadget(ui, server)
+}
+```
+
+```{r}
+h %>% gadget_plot()
+```
+
+
+
+

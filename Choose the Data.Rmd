@@ -1,0 +1,68 @@
+---
+title: "Choose the Data"
+author: "Amwaj Almalki"
+date: "17/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,WDI,Almalki)
+```
+
+## Series List
+
+UIS.FEP.56.F900
+:  Percentage of students enrolled in Health and Welfare programmes in tertiary education who are female (%)
+
+
+## Download All Series
+
+```{r}
+outcome_indicators <- c("5.51.01.03.mortal","HF.DYN.MORT","SH.DYN.MORT","UIS.FEP.56.F900")
+h <- WDI::WDI(indicator = outcome_indicators)
+h %>% 
+head()
+```
+
+
+```{r}
+r <- WDI::WDIsearch("mortality")
+r %>% as_tibble()
+```
+##  Save Data to Package
+
+```{r}
+usethis::use_data(h,overwrite = TRUE)
+```
+
+
+## Explore
+
+```{r}
+r <- WDI::WDIsearch("Percentage of students enrolled in Health and Welfare programmes in tertiary education")
+r
+```
+
+```{r}
+r <- WDI::WDIsearch("Mortality rate, under-5")
+r
+```
+
+Choose child mortality
+```{r}
+outcome_indicators <- c("5.51.01.03.mortal","HF.DYN.MORT","SH.DYN.MORT","UIS.FEP.56.F900")
+h <- WDI::WDI(indicator = outcome_indicators)
+h %>% 
+head()
+```
+```{r}
+h %>% 
+  na.omit %>% 
+  head()
+```
+```{r}
+usethis::use_data(h,overwrite = TRUE)
+```
+
+

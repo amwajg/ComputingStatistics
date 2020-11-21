@@ -1,0 +1,149 @@
+---
+title: "Health Outcomes and Interventions"
+author: 'Amwaj Almalki'
+output:
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(WDI, tidyverse, Almalki)
+```
+
+## Idea primary aim
+
+Health outcome measures can be used to measure health policies of various countries. Governments have the ability to enact polices that will improve health outcomes.This app will provide a way to measure the association between these policies and improvement in health outcomes.
+
+The world data bank (WDB) contains information on health outcomes as well as other country level properties that can be influence by health policy. For my project, I will find the relevant data series on the WDB and present this data to the user. The user will be able to explore these data series to find relations between policy actions and health outcome improvement. This interface will be coded in RShiny. With this app policy makers will be able to make data driven decisions. 
+
+### Analysis Idea
+
+Health Services Research. The goal is to identify the health outcome measure such as mortality or life expectancy. Next, measures of government intervention in society have to be identified. The app  will let the user measure the association of these interventions and outcomes. One intervention could be education. These will be compared across countries to look for association. In addition, moderators or confounders such as age demographics will be used to adjust.  The user will be able to choose from data series that I will pre-select.  There well be options for graphs and statistical analysis.
+
+## Code Sample and Proof-of Concept
+
+One simple analysis is shown below.  The user 
+would be able to choose out of many.
+
+### Sample
+
+1. Choose data
+   1. Pick a good outcome (Health outcome).  A measure of health care quality
+   1. Make sure the data set has good predictors of health.
+   1. Identify the intervention.
+   1. Identify moderators.
+   1. Identify mediators.  
+   1. Identify confounders. 
+   1. Need a good mix is continuous and categorical 
+   and dichotomous for the user to choose.
+   
+2. Analyze the data
+   1. ggplot     (grammar of graphics)
+   1. gtsummary  (grammar of tables)
+
+
+
+### Data Source
+
+Will use the World Data Bank.  Note that 
+there is an app called `WDI`.
+
+Data can also be Downloaded from (https://databank.worldbank.org/source/education-statistics-%5e-all-indicators#)
+
+But it is easier to use the app.
+
+Two example series were downloaded:
+
+* Mortality rate under 5 per 1000
+* Percent of students enrolled in Health and Welfare programs 
+in tertiary education who are female
+
+
+There is a search engine.
+
+```{r}
+r <- WDI::WDIsearch("mortality")
+r %>% as_tibble() %>% head
+```
+Extract the data from WDI for the same indicators.
+This can be done as the user makes selections.
+
+```{r}
+#h <- WDI::WDI(indicator = c("UIS.FEP.56.F900",'SH.DYN.MORT'))
+```
+
+store the data in the package if needed.
+
+```{r}
+#usethis::use_data(h,overwrite = TRUE)
+```
+
+```{r}
+h %>%
+  na.omit() %>% 
+  head
+```
+
+Various summary options will be available.
+The user must be able to explore the data.
+
+```{r}
+h %>% count(country) %>% 
+  arrange(-n) %>% 
+  head
+```
+
+
+Mortality rate under 5 per 1000.
+We filter the data by country.  The user will be able to apply filters and create plots.
+
+```{r}
+h %>% 
+  na.omit() %>% 
+  filter(country %in% c('Canada','Saudi Arabia')) %>% 
+  ggplot(aes(x=year, y = UIS.FEP.56.F900))+
+  geom_point() +
+  facet_wrap(~country)
+
+```
+In addition to plots, The user will be able to create summary tables.
+```{r}
+h %>% 
+  filter(country %in% c('Canada','Saudi Arabia')) %>% 
+  select(country,UIS.FEP.56.F900,SH.DYN.MORT) %>% 
+  janitor::clean_names() %>% 
+gtsummary::tbl_summary(h, by = 'country')
+```
+
+
+## Challenges
+
+1. The first challenge is to learn about data set so that I can provide the user with 10 to 20 useful data series. These can be downloaded in real time.
+
+2. I may need to supplement the data with other websites.
+
+3. How to program RShiny.
+
+4. Other challenges is creating the maps of the countries and using those in graphics.
+
+5. Picking the right analysis choices to offer the user.
+
+6. Find a way to publish the app. 
+
+## To-do
+
+1. Find data series. (OCT 18)
+
+1. Load the data at the user request (RShiny Hello World). (OCT 31)
+
+1. Develop data exploration template for RShiny. (NOV 7)
+
+1. Data modeling template.(NOV 14)
+
+1. Summarize the model. (NOV 20)
+
+
+
+
+

@@ -1,0 +1,65 @@
+---
+title: "Data Exploration"
+author: "Amwaj Almalki"
+date: "17/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,WDI,Almalki)
+```
+
+```{r}
+h %>% 
+  na.omit() %>% 
+  head()
+```
+```{r}
+country_list <- 
+h %>%
+  na.omit() %>% 
+  select(country) %>% 
+  distinct() %>% 
+  arrange(country) %>% 
+  pull(country)
+country_list
+```
+```{r}
+usethis::use_data(country_list,overwrite = TRUE)
+```
+```{r}
+h %>% head
+```
+```{r}
+names(h)
+```
+
+
+```{r}
+country_list[1:10]
+input <- list()
+input$country <- country_list[1:20]
+input$country
+```
+
+```{r}
+h %>% 
+  na.omit() %>% 
+  filter(country %in% input$country) %>% 
+  ggplot(aes(x=NY.ADJ.DRES.GN.ZS,y=HF.DYN.MORT, color=country))+
+  geom_point()
+```
+```{r}
+plot1 <- function(d,x){
+  d %>% 
+  na.omit() %>% 
+  filter(country %in% input$country) %>% 
+  ggplot(aes(x=!!rlang::sym(x),y=HF.DYN.MORT, color=country))+
+  geom_point()
+}
+
+plot1(h,'NY.ADJ.DRES.GN.ZS')
+```
+
+

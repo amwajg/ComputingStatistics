@@ -1,0 +1,302 @@
+---
+title: "Tabset Column"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    source_code: embed
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = FALSE)
+pacman::p_load(tidyverse,WDI,Almalki,shiny)
+```
+
+```{r,eval=FALSE}
+names(h)
+```
+```{r}
+number_of_series <- 5
+```
+
+
+```{r,eval=TRUE}
+fields_list <- h %>% 
+  select(-iso2c) %>% 
+  pivot_longer(cols=where(is.double) | contains('.')) %>% 
+  filter(!is.na(value)) %>% 
+  count(name) %>% 
+  arrange(-n) %>% 
+  pull(name) %>% 
+  as.list()
+write_rds(fields_list, 'data-raw/fields_list.rds')
+fields_strings <- unlist(fields_list)[1:number_of_series]
+```
+
+```{r}
+hh <- h %>% 
+  select(country, year, all_of(fields_strings ))
+hh
+```
+
+```{r}
+fields_list <- read_rds('data-raw/fields_list.rds')
+```
+
+```{r, eval=FALSE}
+fields_list <- 
+  h %>% 
+  select(-country,-year,-iso2c) %>% 
+  names()
+```
+
+```{r}
+country_list <- 
+hh %>%
+  select(country,all_of(fields_strings)) %>% 
+  na.omit() %>% 
+  count(country) %>%
+  arrange(desc(n)) %>% 
+  filter(n >=59) %>% 
+  pull(country) %>% 
+  as.list()
+#country_list
+  
+
+
+```
+
+```{r}
+year_list <- 
+h %>%
+  select(year,all_of(fields_strings)) %>% 
+  na.omit() %>% 
+  count(year) %>% 
+  arrange(desc(n))
+year_list
+```
+
+
+
+
+```{r}
+scatter_plot <- function(.d,x,y){
+  .d %>% 
+  na.omit() %>% 
+  ggplot(aes(x=!!rlang::sym(x),
+             y=!!rlang::sym(y), 
+             color=country))+
+  geom_point()
+}
+```
+```{r}
+country_availability <-function(.d,.x,.year1, .year2){
+  .d %>% 
+  select(country,year,!!rlang::sym(.x)) %>% 
+  filter(!is.na(!!rlang::sym(.x))) %>% 
+    filter(year >= input$year[1],
+           year <= input$year[2])%>% 
+    group_by(country) %>% 
+    dplyr::summarise(`Min Year` = min(year),
+              `Max Year` = max(year),
+              `Count`    = n()) %>% 
+    ungroup()
+}
+```
+
+
+```{r}
+year_density_plot <- function(.d){
+  .d %>% 
+  #na.omit() %>% 
+  ggplot(aes(x=year))+
+  geom_density()
+}
+```
+
+```{r}
+year_bar_plot <- function(.d,.x){
+  .d %>% 
+  select(sym(.x),country,year) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = year))+
+  geom_bar()
+}
+```
+
+
+Inputs {.sidebar}
+-------------------------------------
+
+
+```{r,include=TRUE}
+# shiny inputs defined here
+selectInput(
+  "country",
+  "country list",
+  country_list,
+  selected = country_list[c(1,2)],
+  multiple = TRUE,
+  selectize = TRUE,
+  width = NULL,
+  size = NULL
+)
+```   
+
+```{r,include=TRUE}
+# shiny inputs defined here
+sliderInput(inputId='year',
+               label='year list',
+               min = 1970, max = 2020,
+               value = c(1970,2020))
+
+```
+
+```{r, include=TRUE}
+selectInput(
+  "x",
+  "Select X-AXIS",
+  fields_list,
+  selected = fields_list[c(1)],
+  multiple = FALSE,
+  selectize = TRUE,
+  width = NULL,
+  size = NULL
+)
+```
+
+```{r, include=TRUE}
+selectInput(
+  "y",
+  "Select Y-AXIS",
+  fields_list,
+  selected = fields_list[c(2)],
+  multiple = FALSE,
+  selectize = TRUE,
+  width = NULL,
+  size = NULL
+)
+```
+
+
+   
+Column {.tabset}
+-------------------------------------
+
+### year list
+
+```{r,include=TRUE}
+renderTable({
+  h %>% 
+    select(year) %>% 
+    filter(year >= input$year[1],
+           year <= input$year[2])%>% 
+    distinct
+})
+```
+
+### Scatter Plot
+
+```{r,include=FALSE}
+h %>% 
+  na.omit() %>% 
+  head
+```
+
+```{r,include=FALSE}
+country_list[c(7,25)]
+```
+
+
+```{r, include=TRUE}
+renderPlot({
+  
+h %>% 
+  select(country,year,sym(input$x),sym(input$y)) %>% 
+  na.omit() %>% 
+  filter(country %in% input$country) %>% 
+    filter(year >= input$year[1],
+           year <= input$year[2])%>% 
+    scatter_plot(input$x,input$y)
+})
+```   
+
+
+
+### Year Density For X
+
+```{r}
+fields_list[4]
+h %>% 
+  select(fields_list[2],country) %>% 
+  na.omit() %>% 
+  count(country,sort = TRUE) %>% 
+  arrange(-n)
+```
+
+```{r}
+fields_list[4]
+h %>% 
+  select(fields_list[4],country,year) %>% 
+  na.omit() %>% 
+  ggplot(aes(x = year))+
+  geom_bar()
+```
+
+
+```{r, include=FALSE}
+renderPrint({
+  print(input$year)
+})
+```
+    
+```{r, include=FALSE}
+renderPlot({
+  h %>% 
+    
+    year_bar_plot(input$x)
+  
+})
+```
+
+### Country Availability X
+
+```{r, include=FALSE}
+renderTable({
+  
+h %>% 
+    country_availability(input$x,input$year[1],input$year[2])
+})
+```
+
+```{r}
+h %>% 
+  select(country,year,HF.DYN.MORT) %>% 
+  filter(!is.na(HF.DYN.MORT)) %>% 
+    filter(year %in% c(1990,2000))%>%
+    group_by(country) %>% 
+    dplyr::summarise(`Min Year` = min(year),
+              `Max Year` = max(year),
+              `Count`    = n()) %>% 
+    ungroup()
+```
+
+
+### Country Availability Y
+
+```{r, include=FALSE}
+renderTable({
+  
+h %>% 
+  select(country,year,sym(input$x),sym(input$y)) %>% 
+  filter(!is.na(!!sym(input$y))) %>% 
+    filter(year >= input$year[1],
+           year <= input$year[2])%>% 
+    group_by(country) %>% 
+    dplyr::summarise(`Min Year` = min(year),
+              `Max Year` = max(year),
+              `Count`    = n()) %>% 
+    ungroup()
+})
+```

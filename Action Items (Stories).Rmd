@@ -1,0 +1,34 @@
+---
+title: "Action Items (Stories)"
+author: "Amwaj Almalki"
+date: "17/10/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(tidyverse,WDI,Almalki)
+```
+
+1. Choose data
+   1. Pick a good outcome (Health outcome).  A measure of health care quality
+   1. Select predictors.
+   1. Need a good mix is continuous and categorical 
+   and dichotomous for the user to choose.
+   
+2. Identify model
+   1. Identify the intervention.
+   1. Identify moderators.
+   1. Identify mediators.  
+   1. Identify confounders. 
+  
+3. Explore the data
+   1. ggplot     (grammar of graphics)
+   1. gtsummary  (grammar of tables)
+  
+4. Fit the model
+
+5. Create Shiny dashboard
+
+6. Deploy dashboard
+   
